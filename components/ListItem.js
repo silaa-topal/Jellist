@@ -18,8 +18,8 @@ import {
 } from "react-native";
 import { textDecorationColor } from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
 
-const EditableText = ({ isChecked, onChangeText, text, isNewItem }) => {
-  const [isEditMode, setEditMode] = useState(isNewItem);
+const EditableText = ({ isChecked, onChangeText, text, ...props }) => {
+  const [isEditMode, setEditMode] = useState(props.new);
   return (
     <TouchableOpacity
       style={{ flex: 1 }}
@@ -36,7 +36,10 @@ const EditableText = ({ isChecked, onChangeText, text, isNewItem }) => {
           placeholder={"Add new item here"}
           maxLength={30}
           style={[styles.input, { outline: "none" }]}
-          onBlur={() => setEditMode(false)}
+          onBlur={() => {
+            props.onBlur && props.onBlur();
+            setEditMode(false);
+          }}
         />
       ) : (
         <Text
@@ -60,17 +63,17 @@ export default ({
   onChecked,
   onChangeText,
   onDelete,
-  isNewItem,
+  ...props
 }) => {
   return (
     <View style={styles.container}>
       <View style={{ flexDirection: "row", flex: 1 }}>
-        <Checkbox isChecked={isChecked} onChecked={onChecked} />
+        {/* <Checkbox isChecked={isChecked} onChecked={onChecked} /> */}
         <EditableText
           text={text}
           onChangeText={onChangeText}
           isChecked={isChecked}
-          isNewItem={isNewItem}
+          {...props}
         />
       </View>
       <TouchableOpacity onPress={onDelete}>

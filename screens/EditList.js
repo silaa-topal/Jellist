@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { auth } from "../firebase";
 import Colors from "../constants/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Button from "../components/Button";
 import {
   KeyboardAvoidingView,
   ImageBackground,
@@ -14,20 +15,6 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import ColorSelector from "../components/ColorSelector";
-
-const colorList = [
-  "blue",
-  "teal",
-  "green",
-  "olive",
-  "yellow",
-  "orange",
-  "red",
-  "pink",
-  "purple",
-  "blueGray",
-];
 
 export default ({ navigation, route }) => {
   const [title, setTitle] = useState(route.params.title || "");
@@ -58,18 +45,9 @@ export default ({ navigation, route }) => {
           maxLength={30}
           style={[styles.input, { outline: "none" }]}
         />
-        <Text style={styles.label}>Choose Color</Text>
-        <ColorSelector
-          onSelect={(color) => {
-            setColor(color);
-            navigation.dispatch(CommonActions.setParams({ color }));
-          }}
-          selectedColor={color}
-          colorOptions={colorList}
-        />
       </View>
-      <TouchableOpacity
-        style={styles.saveButton}
+      <Button
+        text="Save"
         onPress={() => {
           if (title.length > 1) {
             route.params.saveChanges({ title, color });
@@ -78,11 +56,7 @@ export default ({ navigation, route }) => {
             setValidity(false);
           }
         }}
-      >
-        <Text style={{ color: "white", fontSize: 24, fontWeight: "bold" }}>
-          Save
-        </Text>
-      </TouchableOpacity>
+      />
     </View>
   );
 };

@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState, useLayoutEffect } from "react";
-import { auth } from "../firebase";
+import { auth, firestore } from "firebase";
 import Icon from "react-native-vector-icons/Ionicons";
 import Colors from "../constants/Colors";
 import Logo from "../components/Logo";
@@ -17,13 +17,18 @@ import {
   FlatList,
 } from "react-native";
 import { Button } from "react-native-web";
-//import { Colors } from "react-native/Libraries/NewAppScreen";
+import {
+  onSnapshot,
+  addDoc,
+  removeDoc,
+  updateDoc,
+} from "../services/collections";
 
 const { width: WIDTH } = Dimensions.get("window");
 
 // const MyListsScreen = () => {
 //   const navigation = useNavigation();
-
+// };
 // const handleExplore = () => {
 //   navigation.replace("Explore");
 // };
@@ -51,35 +56,63 @@ const ListButton = ({ title, color, onPress, onDelete, onOptions }) => {
 
 const renderAddListIcon = (navigation, addItemToLists) => {
   return (
-    <TouchableOpacity
-      onPress={() =>
-        navigation.navigate("Edit", { saveChanges: addItemToLists })
-      }
-    >
-      <Text style={styles.inputIcon}>+</Text>
-    </TouchableOpacity>
+    <View style={{ flexDirection: "row" }}>
+      <TouchableOpacity
+        style={{ justifyContent: "center", marginRight: 4 }}
+        onPress={() => navigation.navigate("Settings")}
+      >
+        <Icon name="settings" size={16} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{ justifyContent: "center", marginRight: 8 }}
+        onPress={() =>
+          navigation.navigate("Edit", { saveChanges: addItemToLists })
+        }
+      >
+        <Text style={styles.inputIcon}>+</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 export default ({ navigation }) => {
-  const [lists, setLists] = useState([
-    { title: "List 1", color: Colors.darkPurple },
-    { title: "List 2", color: Colors.darkPurple },
-  ]);
+  const [lists, setLists] = useState([]);
+  const listsRef = firestore()
+    .collection("users")
+    .doc(auth().currentUser.uid)
+    .collection("lists");
 
-  const addItemToLists = (item) => {
-    lists.push(item);
-    setLists([...lists]);
+  useEffect(() => {
+    onSnapshot(
+      listsRef,
+      (newLists) => {
+        setLists(newLists);
+      },
+      {
+        sort: (a, b) => {
+          if (a.index < b.index) {
+            return -1;
+          }
+          if (a.index > b.index) {
+            return 1;
+          }
+          return 0;
+        },
+      }
+    );
+  }, []);
+
+  const addItemToLists = ({ title, color }) => {
+    const index = lists.length > 1 ? lists[lists.length - 1].index + 1 : 0;
+    addDoc(listsRef, { title, color, index });
   };
 
-  const removeItemFromLists = (index) => {
-    lists.splice(index, 1);
-    setLists([...lists]);
+  const removeItemFromLists = (id) => {
+    removeDoc(listsRef, id);
   };
 
-  const updateItemFromLists = (index, item) => {
-    lists[index] = item;
-    setLists([...lists]);
+  const updateItemFromLists = (id, item) => {
+    updateDoc(listsRef, id, item);
   };
 
   useLayoutEffect(() => {
@@ -93,31 +126,57 @@ export default ({ navigation }) => {
       style={styles.background}
       source={require("../assets/jellyfish.jpg")}
     >
-      <View View style={styles.container}>
+      <View style={styles.container}>
         <FlatList
           data={lists}
-          renderItem={({ item: { title, color }, index }) => {
+          renderItem={({ item: { title, color, id, index } }) => {
             return (
               <ListButton
                 title={title}
                 color={color}
                 navigation={navigation}
                 onPress={() => {
-                  navigation.navigate("List Details", { title, color });
+                  navigation.navigate("List Details", {
+                    title,
+                    color,
+                    listId: id,
+                  });
                 }}
                 onOptions={() => {
                   navigation.navigate("Edit", {
                     title,
                     color,
-                    saveChanges: (item) => updateItemFromLists(index, item),
+                    saveChanges: (newItem) =>
+                      updateItemFromLists(id, { index, ...newItem }),
                   });
                 }}
-                onDelete={() => removeItemFromLists(index)}
+                onDelete={() => removeItemFromLists(id)}
               />
             );
           }}
         />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("Explore");
+            }}
+            style={[styles.buttonExplore]}
+          >
+            <Text style={styles.buttonText}>Explore</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {/* <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("Explore")
+          }}
+          style={[styles.buttonExplore]}
+        >
+          <Text style={styles.buttonText}>Explore</Text>
+        </TouchableOpacity>
+      </View> */}
 
       {/* <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -130,7 +189,7 @@ export default ({ navigation }) => {
     </ImageBackground>
   );
 };
-//};
+// }
 
 const styles = StyleSheet.create({
   background: {

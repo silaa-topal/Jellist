@@ -1,9 +1,9 @@
-import { useNavigation } from '@react-navigation/core'
-import React, { useEffect, useState } from 'react'
-import { auth } from '../firebase'
+import { useNavigation } from "@react-navigation/core";
+import React, { useEffect, useState } from "react";
+import { auth } from "../firebase";
 import Icon from "react-native-vector-icons/Ionicons";
 import Logo from "../components/Logo";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   KeyboardAvoidingView,
   ImageBackground,
@@ -18,37 +18,32 @@ import {
 const { width: WIDTH } = Dimensions.get("window");
 
 const SignUpScreen = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   const handleSignUpinSignUp = () => {
-    auth
-      .pass
+    auth.pass
       .createUserWithEmailAndPassword(email, password)
-      .then(userCredentials => {
+      .then((userCredentials) => {
         const user = userCredentials.user;
-        console.log('Registered with:', user.email);
-        navigation.replace("Login")
+        console.log("Registered with:", user.email);
+        navigation.replace("Login");
       })
-      .catch(error => alert(error.message))
-  }
+      .catch((error) => alert(error.message));
+  };
 
   const buttonAlreadyAccount = () => {
-    navigation.replace("Login")
-  }
-  
+    navigation.replace("Login");
+  };
 
   return (
     <ImageBackground
       style={styles.background}
       source={require("../assets/jellyfish.jpg")}
     >
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior="padding"
-      >
+      <KeyboardAvoidingView style={styles.container} behavior="padding">
         <View>
           <Logo></Logo>
         </View>
@@ -64,7 +59,7 @@ const SignUpScreen = () => {
             placeholderTextColor={"rgba(255,255,255,0.9)"}
             underlineColorAndroid="transparent"
             value={email}
-            onChangeText={text => setEmail(text)}
+            onChangeText={(text) => setEmail(text)}
             style={styles.input}
           />
         </View>
@@ -80,7 +75,7 @@ const SignUpScreen = () => {
             placeholderTextColor={"rgba(255,255,255,0.9)"}
             underlineColorAndroid="transparent"
             value={password}
-            onChangeText={text => setPassword(text)}
+            onChangeText={(text) => setPassword(text)}
             style={styles.input}
             secureTextEntry
           />
@@ -90,9 +85,7 @@ const SignUpScreen = () => {
             onPress={handleSignUpinSignUp}
             style={[styles.buttonSignUp]}
           >
-          <Text 
-            style={styles.buttonText}>Sign Up
-          </Text>
+            <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
@@ -100,17 +93,15 @@ const SignUpScreen = () => {
             onPress={buttonAlreadyAccount}
             style={[styles.buttonAlreadyAccount]}
           >
-          <Text 
-            style={styles.logoText}>Already have an account?
-          </Text>
+            <Text style={styles.logoText}>Already have an account?</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </ImageBackground>
-  )
-}
+  );
+};
 
-export default SignUpScreen
+export default SignUpScreen;
 
 const styles = StyleSheet.create({
   background: {
@@ -122,11 +113,11 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   inputContainer: {
-    width: '80%',
+    width: "80%",
     marginTop: 10,
   },
   inputIcon: {
@@ -145,9 +136,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 25,
   },
   buttonContainer: {
-    width: '60%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "60%",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 0,
   },
   buttonLogin: {
@@ -173,9 +164,9 @@ const styles = StyleSheet.create({
     marginTop: -10,
   },
   buttonOutline: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     marginTop: 5,
-    borderColor: '#0782F9',
+    borderColor: "#0782F9",
     borderWidth: 2,
   },
   buttonText: {
@@ -184,8 +175,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   buttonOutlineText: {
-    color: '#0782F9',
-    fontWeight: '700',
+    color: "#0782F9",
+    fontWeight: "700",
     fontSize: 16,
   },
   logoText: {
@@ -196,4 +187,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
     justifyContent: "center",
   },
-})
+});
